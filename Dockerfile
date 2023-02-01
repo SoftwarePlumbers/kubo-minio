@@ -1,4 +1,4 @@
-FROM rockylinux:8.5 AS commonRuntime
+FROM rockylinux:8.5 AS common_runtime
 COPY etc/yum.repos.d/oneAPI.repo /etc/yum.repos.d
 RUN yum install -y findutils 
 RUN yum install -y jq hwloc pkgconfig llvm wget intel-oneapi-runtime-opencl intel-oneapi-runtime-compilers intel-oneapi-runtime-compilers-32bit
@@ -9,7 +9,7 @@ RUN mkdir -p $IPFS_PATH \
   && chown ipfs:users $IPFS_PATH
 VOLUME $IPFS_PATH
 
-FROM commonRuntime AS builder
+FROM common_runtime AS builder
 RUN yum install -y git make golang clang  
 COPY etc/profile.d/go.sh /etc/profile.d/go.sh
 ADD https://go.dev/dl/go1.19.1.linux-amd64.tar.gz /usr/local
@@ -24,13 +24,13 @@ RUN echo -en "\ns3ds github.com/ipfs/go-ds-s3/plugin 0" >> plugin/loader/preload
 RUN make build; go mod tidy
 RUN make build
 
-FROM commonRuntime AS initContainer
+FROM common_runtime AS init_container
 COPY --from=builder /build/kubo/cmd/ipfs/ipfs /usr/local/bin/ipfs
 COPY bin/init.sh /usr/local/bin/init.sh
 ENTRYPOINT ["/bin/bash"]
 CMD ["/usr/local/bin/init.sh"]
 
-FROM commonRuntime AS runContainer
+FROM common_runtime AS runContainer
 COPY --from=builder /build/kubo/cmd/ipfs/ipfs /usr/local/bin/ipfs
 USER ipfs
 # Swarm TCP; should be exposed to the public
