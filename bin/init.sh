@@ -11,6 +11,9 @@ function init_function() {
     ipfs init ${IPFS_PROFILE:+"--profile=$IPFS_PROFILE"}
     ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001
     ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
+    if [ ! -z "$IPFS_ANNOUNCE_ADDR" ]; then
+      ipfs config --json Addresses.Announce "[\"$IPFS_ANNOUNCE_ADDR\"]"
+    fi
 
     # Set up the swarm key, if provided
 
