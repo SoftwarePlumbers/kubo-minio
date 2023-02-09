@@ -17,7 +17,33 @@ function init_function() {
     if [ ! -z "$IPFS_HTTP_API_ALLOW" ]; then
       ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"$IPFS_HTTP_API_ALLOW\"]"
     fi
-
+    if [ ! -z "$IPFS_MINIO_SERVICE" ]; then
+      DATASTORE_SPEC='[
+        { "child": {
+            "type": "s3ds",
+            "region": "us-east-1",
+            "bucket": "'$IPFS_MINIO_BUCKET'",
+            "rootDirectory": "blocks",
+            "regionEndpoint": "'$IPFS_MINIO_SERVICE'",
+            "accessKey": "'$IPFS_MINIO_USER'",
+            "secretKey": "'$IPFS_MINIO_TOKEN'"
+          },
+            "mountpoint": "/blocks",
+            "prefix": "s3.datastore",
+            "type": "measure"
+        },{
+          "child": {
+            "compression": "none",
+            "path": "datastore",
+            "type": "levelds"
+          },
+          "mountpoint": "/",
+          "prefix": "leveldb.datastore",
+          "type": "measure"
+        }
+      ]'
+      ipfs config --json Datastore.Spec.mounts "$DATASTORE_SPEC"
+    fi
     # Set up the swarm key, if provided
 
     SWARM_KEY_FILE="$IPFS_PATH/swarm.key"
