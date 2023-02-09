@@ -14,6 +14,9 @@ function init_function() {
     if [ ! -z "$IPFS_ANNOUNCE_ADDR" ]; then
       ipfs config --json Addresses.Announce "[\"$IPFS_ANNOUNCE_ADDR\"]"
     fi
+    if [ ! -z "$IPFS_HTTP_API_ALLOW" ]; then
+      ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"$IPFS_HTTP_API_ALLOW\"]"
+    fi
 
     # Set up the swarm key, if provided
 
