@@ -1,5 +1,7 @@
 FROM rockylinux:8.5 AS common_runtime
 COPY etc/yum.repos.d/oneAPI.repo /etc/yum.repos.d
+COPY etc/pki/ca-trust/source/anchors/galifrey.pem /etc/pki/ca-trust/source/anchors/galifrey.pem
+RUN update-ca-trust
 RUN yum install -y findutils 
 RUN yum install -y jq hwloc pkgconfig llvm wget intel-oneapi-runtime-opencl intel-oneapi-runtime-compilers intel-oneapi-runtime-compilers-32bit
 RUN ln -s /usr/lib64/libhwloc.so.15.2.0 /usr/lib64/libhwloc.so
@@ -32,8 +34,6 @@ CMD ["/usr/local/bin/init.sh"]
 
 FROM common_runtime AS runContainer
 COPY --from=builder /build/kubo/cmd/ipfs/ipfs /usr/local/bin/ipfs
-COPY etc/pki/ca-trust/source/whitelist/galifrey.pem /etc/pki/ca-trust/source/whitelist/galifrey.pem
-RUN update-ca-trust
 USER ipfs
 # Swarm TCP; should be exposed to the public
 EXPOSE 4001
