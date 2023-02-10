@@ -32,6 +32,8 @@ CMD ["/usr/local/bin/init.sh"]
 
 FROM common_runtime AS runContainer
 COPY --from=builder /build/kubo/cmd/ipfs/ipfs /usr/local/bin/ipfs
+COPY etc/pki/ca-trust/source/whitelist/galifrey.pem /etc/pki/ca-trust/source/whitelist/galifrey.pem
+RUN update-ca-trust
 USER ipfs
 # Swarm TCP; should be exposed to the public
 EXPOSE 4001
