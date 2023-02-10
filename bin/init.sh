@@ -43,20 +43,7 @@ function init_function() {
         }
       ]'
 
-      DATASTORE_SPEC_FILE='{
-        "mounts":[
-          { "bucket":"'$IPFS_MINIO_BUCKET'",
-            "mountpoint":"/blocks",
-            "region":"us-east-1",
-            "rootDirectory":"blocks"
-          },{
-            "mountpoint":"/",
-            "path":"datastore",
-            "type":"levelds"
-          }
-        ],
-        "type":"mount"        
-      }'
+      DATASTORE_SPEC_FILE='{"mounts":[{"bucket":"'$IPFS_MINIO_BUCKET'","mountpoint":"/blocks","region":"us-east-1","rootDirectory":"blocks"},{"mountpoint":"/","path":"datastore","type":"levelds"}],"type":"mount"}'
 
       ipfs config --json Datastore.Spec.mounts "$DATASTORE_SPEC"
       echo "$DATASTORE_SPEC_FILE" > $IPFS_PATH/datastore_spec 
