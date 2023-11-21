@@ -1,4 +1,4 @@
-FROM rockylinux:8.5 AS common_runtime
+FROM almalinux:9.2 AS common_runtime
 COPY etc/yum.repos.d/oneAPI.repo /etc/yum.repos.d
 COPY etc/pki/ca-trust/source/anchors/galifrey.pem /etc/pki/ca-trust/source/anchors/galifrey.pem
 RUN update-ca-trust
@@ -14,21 +14,24 @@ VOLUME $IPFS_PATH
 FROM common_runtime AS builder
 RUN yum install -y git make golang clang  
 COPY etc/profile.d/go.sh /etc/profile.d/go.sh
-ADD https://go.dev/dl/go1.19.1.linux-amd64.tar.gz /usr/local
-RUN cd /usr/local; tar -xf go1.19.1.linux-amd64.tar.gz; rm go1.19.1.linux-amd64.tar.gz
+ENV GO_TAR go1.21.4.linux-amd64.tar.gz
+ENV CGO_ENABLED 1
+ENV GO111MODULE on
+ADD https://go.dev/dl/$GO_TAR /usr/local
+RUN cd /usr/local; tar -xf $GO_TAR; rm $GO_TAR
 RUN mkdir /build
 WORKDIR /build
 RUN git clone https://github.com/ipfs/kubo.git
 WORKDIR /build/kubo
-ENV GO111MODULE on
-RUN go get github.com/ipfs/go-ds-s3/plugin@latest
+RUN git checkout v0.23.0
+RUN go get github.com/ipfs/go-ds-s3/plugin@v0.9.0
 RUN echo -en "\ns3ds github.com/ipfs/go-ds-s3/plugin 0" >> plugin/loader/preload_list
-RUN make build; go mod tidy
 RUN make build
 
 FROM common_runtime AS init_container
 COPY --from=builder /build/kubo/cmd/ipfs/ipfs /usr/local/bin/ipfs
 COPY bin/init.sh /usr/local/bin/init.sh
+USER ipfs
 ENTRYPOINT ["/bin/bash"]
 CMD ["/usr/local/bin/init.sh"]
 

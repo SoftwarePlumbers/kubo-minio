@@ -1,0 +1,23 @@
+services:
+  ipfs:
+    build: 
+      context: .
+      target: runContainer
+    env_file:
+      - .env.test
+    depends_on:
+      ipfs-init:
+        condition: service_completed_successfully
+    volumes:
+      - ipfsdata:/data/ipfs
+  ipfs-init:
+    build:
+      context: .
+      target: init_container
+    env_file:
+      - .env.test
+    volumes:
+      - ipfsdata:/data/ipfs
+volumes:
+  ipfsdata:
+
