@@ -16,6 +16,7 @@ function init_function() {
     fi
     if [ ! -z "$IPFS_HTTP_API_ALLOW" ]; then
       ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"$IPFS_HTTP_API_ALLOW\"]"
+      ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "POST"]'
     fi
     if [ ! -z "$IPFS_MINIO_SERVICE" ]; then
       DATASTORE_SPEC='[
