@@ -31,7 +31,7 @@ RUN make build
 FROM common_runtime AS init_container
 COPY --from=builder /build/kubo/cmd/ipfs/ipfs /usr/local/bin/ipfs
 COPY bin/init.sh /usr/local/bin/init.sh
-USER ipfs
+# Note the init script should run as root so that it can chown the volume
 ENTRYPOINT ["/bin/bash"]
 CMD ["/usr/local/bin/init.sh"]
 
